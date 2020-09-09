@@ -1,9 +1,12 @@
 import collections
 import contextlib
 import copy
+import logging
 
 import arg
 from django.core import exceptions
+
+logger = logging.getLogger(__name__)
 
 
 class single_list(arg.val):
@@ -91,8 +94,12 @@ def raise_contextualized_error(error_class=ContextualizedValidationError):
     assert issubclass(error_class, ContextualizedValidationError)
     try:
         yield
-    except Exception as exc:
+    except exceptions.ValidationError as exc:
+        logger.warning('exception: {!r}'.format(exc), exc_info=True)
         raise error_class(exc)
+    except Exception as exc:
+        logger.warning('exception: {!r}'.format(exc), exc_info=True)
+        raise
 
 
 @contextlib.contextmanager
